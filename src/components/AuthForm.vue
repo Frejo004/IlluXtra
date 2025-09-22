@@ -7,9 +7,10 @@
             ← Back
           </button>
           
-          <div class="brand">
-            <h1>FREEPIK</h1>
-          </div>
+          <router-link to="/" class="brand">
+            <div class="logo-icon">IX</div>
+            <span class="logo-text">IlluXtra</span>
+          </router-link>
 
           <div class="form-header">
             <h2>{{ title }}</h2>
@@ -48,15 +49,15 @@
 
           <div class="form-footer">
             <p v-if="showEmailForm && isRegister" class="terms">
-              By clicking the "Sign up" button, you are creating a Freepik account and therefore you agree to Freepik Terms of Use and Privacy Policy.
+              By clicking the "Sign up" button, you are creating an IlluXtra account and therefore you agree to IlluXtra Terms of Use and Privacy Policy.
             </p>
             <label v-if="!showEmailForm && isRegister" class="checkbox-label">
               <input type="checkbox" />
-              I do not wish to receive news and promotions from Freepik by email.
+              I do not wish to receive news and promotions from IlluXtra by email.
             </label>
             
             <p v-if="!showEmailForm && isRegister" class="terms">
-              By continuing, you agree to Freepik Terms of Use and Privacy Policy.
+              By continuing, you agree to IlluXtra Terms of Use and Privacy Policy.
             </p>
             
             <p class="switch-form">
@@ -178,18 +179,44 @@ const switchLinkText = computed(() => props.isRegister ? 'Log in' : 'Sign up')
 }
 
 .brand {
-  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  justify-content: flex-end;
   margin-bottom: 3rem;
+  transition: transform 0.3s;
+}
+
+.brand:hover {
+  transform: scale(1.05);
 }
 
 .form-left .brand {
-  text-align: left;
+  justify-content: flex-start;
 }
 
-.brand h1 {
-  font-size: 1.5rem;
+.logo-icon {
+  width: 2rem;
+  height: 2rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
   font-weight: bold;
-  color: #6366f1;
+  font-size: 0.875rem;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.dark .logo-text {
+  color: white;
 }
 
 .form-header {

@@ -106,8 +106,9 @@ const switchLinkText = computed(() => props.isRegister ? 'Log in' : 'Sign up')
 
 <style scoped>
 .auth-page {
-  min-height: 100vh;
+  height: 100vh;
   background: white;
+  overflow: hidden;
 }
 
 .dark .auth-page {
@@ -116,7 +117,7 @@ const switchLinkText = computed(() => props.isRegister ? 'Log in' : 'Sign up')
 
 .auth-container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .auth-image {

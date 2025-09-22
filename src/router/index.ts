@@ -6,6 +6,8 @@ import Blog from '../views/Blog.vue'
 import Contact from '../views/Contact.vue'
 import Admin from '../views/Admin.vue'
 import Legal from '../views/Legal.vue'
+import Login from '../views/auth/Login.vue'
+import Register from '../views/auth/Register.vue'
 
 const routes = [
   {
@@ -56,6 +58,16 @@ const routes = [
     path: '/legal',
     name: 'Legal',
     component: Legal
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
   }
 ]
 

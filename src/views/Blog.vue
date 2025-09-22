@@ -1,77 +1,29 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    <!-- Header -->
-    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Blog IlluXtra
-        </h1>
-        <p class="text-lg text-gray-600 dark:text-gray-400">
-          Actualités, conseils et tendances de l'IA générative
-        </p>
-      </div>
+  <div class="blog-page">
+    <div class="blog-header">
+      <h1>Blog IlluXtra</h1>
+      <p>Actualités, conseils et tendances de l'IA générative</p>
     </div>
 
-    <!-- Blog Posts -->
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="space-y-12">
-        <article 
-          v-for="post in blogPosts" 
-          :key="post.id"
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
-        >
-          <div class="md:flex">
-            <div class="md:w-1/3">
-              <img 
-                :src="post.image" 
-                :alt="post.title"
-                class="w-full h-48 md:h-full object-cover"
-              />
-            </div>
-            <div class="md:w-2/3 p-6">
-              <div class="flex items-center space-x-2 mb-3">
-                <span class="px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400 rounded-full">
-                  {{ post.category }}
-                </span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ formatDate(post.date) }}
-                </span>
-              </div>
-              
-              <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                {{ post.title }}
-              </h2>
-              
-              <p class="text-gray-600 dark:text-gray-400 mb-4">
-                {{ post.excerpt }}
-              </p>
-              
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                  <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                    <span class="text-white text-sm font-medium">{{ post.author.charAt(0) }}</span>
-                  </div>
-                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ post.author }}</span>
-                </div>
-                
-                <a 
-                  href="#" 
-                  class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 font-medium text-sm"
-                >
-                  Lire la suite →
-                </a>
-              </div>
-            </div>
+    <div class="blog-container">
+      <article v-for="post in blogPosts" :key="post.id" class="blog-post">
+        <img :src="post.image" :alt="post.title" class="post-image" />
+        <div class="post-content">
+          <div class="post-meta">
+            <span class="post-category">{{ post.category }}</span>
+            <span class="post-date">{{ formatDate(post.date) }}</span>
           </div>
-        </article>
-      </div>
-
-      <!-- Load More -->
-      <div class="text-center mt-12">
-        <button class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
-          Charger plus d'articles
-        </button>
-      </div>
+          <h2>{{ post.title }}</h2>
+          <p>{{ post.excerpt }}</p>
+          <div class="post-footer">
+            <div class="post-author">
+              <div class="author-avatar">{{ post.author.charAt(0) }}</div>
+              <span>{{ post.author }}</span>
+            </div>
+            <a href="#" class="read-more">Lire la suite →</a>
+          </div>
+        </div>
+      </article>
     </div>
   </div>
 </template>
@@ -93,7 +45,7 @@ const blogPosts = ref<BlogPost[]>([
   {
     id: '1',
     title: 'L\'avenir de la création visuelle avec l\'IA',
-    excerpt: 'Découvrez comment l\'intelligence artificielle révolutionne le monde de la création graphique et les opportunités qu\'elle offre aux designers.',
+    excerpt: 'Découvrez comment l\'intelligence artificielle révolutionne le monde de la création graphique.',
     category: 'Tendances',
     author: 'Marie Dupont',
     date: '2024-01-15',
@@ -102,29 +54,11 @@ const blogPosts = ref<BlogPost[]>([
   {
     id: '2',
     title: 'Comment optimiser ses créations IA pour le web',
-    excerpt: 'Apprenez les meilleures pratiques pour adapter vos images générées par IA aux besoins du web moderne.',
+    excerpt: 'Apprenez les meilleures pratiques pour adapter vos images générées par IA.',
     category: 'Tutoriels',
     author: 'Jean Martin',
     date: '2024-01-12',
     image: 'https://images.pexels.com/photos/2166711/pexels-photo-2166711.jpeg?auto=compress&cs=tinysrgb&w=800'
-  },
-  {
-    id: '3',
-    title: 'Les nouvelles fonctionnalités d\'IlluXtra',
-    excerpt: 'Découvrez les dernières améliorations apportées à notre plateforme pour une meilleure expérience utilisateur.',
-    category: 'Nouveautés',
-    author: 'Sophie Chen',
-    date: '2024-01-10',
-    image: 'https://images.pexels.com/photos/1266810/pexels-photo-1266810.jpeg?auto=compress&cs=tinysrgb&w=800'
-  },
-  {
-    id: '4',
-    title: 'Guide complet des prompts pour l\'IA générative',
-    excerpt: 'Maîtrisez l\'art de créer des prompts efficaces pour obtenir des résultats exceptionnels avec les outils d\'IA.',
-    category: 'Guides',
-    author: 'Alex Rivera',
-    date: '2024-01-08',
-    image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=800'
   }
 ])
 
@@ -136,3 +70,187 @@ const formatDate = (dateString: string) => {
   })
 }
 </script>
+
+<style scoped>
+.blog-page {
+  min-height: 100vh;
+  background: var(--color-gray-50);
+}
+
+.dark .blog-page {
+  background: var(--color-gray-900);
+}
+
+.blog-header {
+  background: white;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.dark .blog-header {
+  background: var(--color-gray-800);
+}
+
+.blog-header h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: var(--color-gray-900);
+}
+
+.dark .blog-header h1 {
+  color: white;
+}
+
+.blog-header p {
+  font-size: 1.125rem;
+  color: var(--color-gray-600);
+}
+
+.dark .blog-header p {
+  color: var(--color-gray-400);
+}
+
+.blog-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.blog-post {
+  background: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .blog-post {
+    flex-direction: row;
+  }
+}
+
+.dark .blog-post {
+  background: var(--color-gray-800);
+}
+
+.post-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .post-image {
+    width: 300px;
+    height: auto;
+  }
+}
+
+.post-content {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.post-category {
+  padding: 0.25rem 0.75rem;
+  background: #eef2ff;
+  color: #6366f1;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.dark .post-category {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+}
+
+.post-date {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+}
+
+.dark .post-date {
+  color: var(--color-gray-400);
+}
+
+.post-content h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  color: var(--color-gray-900);
+}
+
+.dark .post-content h2 {
+  color: white;
+}
+
+.post-content p {
+  color: var(--color-gray-600);
+  margin-bottom: 1rem;
+}
+
+.dark .post-content p {
+  color: var(--color-gray-400);
+}
+
+.post-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.author-avatar {
+  width: 2rem;
+  height: 2rem;
+  background: #6366f1;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.post-author span {
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+}
+
+.dark .post-author span {
+  color: var(--color-gray-300);
+}
+
+.read-more {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.dark .read-more {
+  color: #818cf8;
+}
+
+.read-more:hover {
+  color: #4f46e5;
+}
+</style>

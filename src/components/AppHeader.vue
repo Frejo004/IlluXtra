@@ -1,76 +1,53 @@
 <template>
-  <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <!-- Logo -->
-        <router-link to="/" class="flex items-center space-x-2 group">
-          <div class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center transform group-hover:scale-105 transition-transform">
-            <span class="text-white font-bold text-sm">IX</span>
-          </div>
-          <span class="text-xl font-bold text-gray-900 dark:text-white">IlluXtra</span>
+  <header class="app-header">
+    <div class="header-container">
+      <div class="header-content">
+        <router-link to="/" class="logo">
+          <div class="logo-icon">IX</div>
+          <span class="logo-text">IlluXtra</span>
         </router-link>
 
-        <!-- Navigation -->
-        <nav class="hidden md:flex items-center space-x-8">
+        <nav class="nav-desktop">
           <router-link 
             v-for="item in navigation" 
             :key="item.name"
             :to="item.to"
-            class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-            :class="{ 'text-indigo-600 dark:text-indigo-400': $route.path === item.to }"
+            class="nav-link"
           >
             {{ item.name }}
           </router-link>
         </nav>
 
-        <!-- Actions -->
-        <div class="flex items-center space-x-4">
-          <!-- Search -->
-          <div class="hidden sm:block relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              v-model="searchQuery"
-              @input="updateFilters"
-              type="text"
-              placeholder="Rechercher..."
-              class="pl-10 pr-4 py-2 w-64 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
-          </div>
-
-          <!-- Theme Toggle -->
-          <button
-            @click="toggleTheme"
-            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <SunIcon v-if="isDark" class="h-5 w-5 text-gray-600 dark:text-gray-400" />
-            <MoonIcon v-else class="h-5 w-5 text-gray-600 dark:text-gray-400" />
+        <div class="header-actions">
+          <input
+            v-model="searchQuery"
+            @input="updateFilters"
+            type="text"
+            placeholder="Rechercher..."
+            class="search-input"
+          />
+          <button @click="toggleTheme" class="theme-btn">
+            {{ isDark ? '☀️' : '🌙' }}
           </button>
-
-          <!-- Mobile menu button -->
-          <button
-            @click="mobileMenuOpen = !mobileMenuOpen"
-            class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            <Bars3Icon class="h-6 w-6" />
+          <button class="login-btn">
+            Se connecter
+          </button>
+          <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-btn">
+            ☰
           </button>
         </div>
       </div>
 
-      <!-- Mobile menu -->
-      <div v-show="mobileMenuOpen" class="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="space-y-2">
-          <router-link 
-            v-for="item in navigation" 
-            :key="item.name"
-            :to="item.to"
-            @click="mobileMenuOpen = false"
-            class="block px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-          >
-            {{ item.name }}
-          </router-link>
-        </div>
+      <div v-show="mobileMenuOpen" class="mobile-menu">
+        <router-link 
+          v-for="item in navigation" 
+          :key="item.name"
+          :to="item.to"
+          @click="mobileMenuOpen = false"
+          class="mobile-link"
+        >
+          {{ item.name }}
+        </router-link>
       </div>
     </div>
   </header>
@@ -78,7 +55,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { MagnifyingGlassIcon, SunIcon, MoonIcon, Bars3Icon } from '@heroicons/vue/24/outline'
 import { useTheme } from '../composables/useTheme'
 import { useMediaStore } from '../composables/useMediaStore'
 
@@ -96,3 +72,220 @@ const navigation = [
   { name: 'Contact', to: '/contact' }
 ]
 </script>
+
+<style scoped>
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.dark .app-header {
+  background: rgba(17,24,39,0.8);
+  border-bottom-color: var(--color-gray-700);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: transform 0.3s;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.logo-icon {
+  width: 2rem;
+  height: 2rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.875rem;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--color-gray-900);
+}
+
+.dark .logo-text {
+  color: white;
+}
+
+.nav-desktop {
+  display: none;
+  align-items: center;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .nav-desktop {
+    display: flex;
+  }
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #6366f1;
+}
+
+.dark .nav-link {
+  color: var(--color-gray-300);
+}
+
+.dark .nav-link:hover {
+  color: #818cf8;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-input {
+  display: none;
+  padding: 0.5rem 1rem;
+  width: 16rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 0.5rem;
+  background: white;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .search-input {
+    display: block;
+  }
+}
+
+.dark .search-input {
+  background: var(--color-gray-800);
+  border-color: var(--color-gray-600);
+  color: white;
+}
+
+.theme-btn, .mobile-btn {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.theme-btn:hover, .mobile-btn:hover {
+  background: var(--color-gray-100);
+}
+
+.dark .theme-btn:hover, .dark .mobile-btn:hover {
+  background: var(--color-gray-800);
+}
+
+.login-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #6366f1;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #6366f1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.login-btn:hover {
+  background: #6366f1;
+  color: white;
+}
+
+.dark .login-btn {
+  border-color: #818cf8;
+  color: #818cf8;
+}
+
+.dark .login-btn:hover {
+  background: #818cf8;
+  color: white;
+}
+
+.mobile-btn {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .mobile-btn {
+    display: none;
+  }
+}
+
+.mobile-menu {
+  display: block;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-gray-200);
+}
+
+@media (min-width: 768px) {
+  .mobile-menu {
+    display: none;
+  }
+}
+
+.dark .mobile-menu {
+  border-top-color: var(--color-gray-700);
+}
+
+.mobile-link {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-gray-700);
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: all 0.3s;
+}
+
+.mobile-link:hover {
+  color: #6366f1;
+  background: var(--color-gray-50);
+}
+
+.dark .mobile-link {
+  color: var(--color-gray-300);
+}
+
+.dark .mobile-link:hover {
+  color: #818cf8;
+  background: var(--color-gray-800);
+}
+</style>

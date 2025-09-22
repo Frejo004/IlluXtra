@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+  <div id="app" class="min-h-screen transition-colors" :class="isDark ? 'dark' : ''">
     <AppHeader />
     
     <main>
@@ -11,12 +11,20 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
 import { useTheme } from './composables/useTheme'
 
 const { isDark } = useTheme()
+
+watch(isDark, (dark) => {
+  if (dark) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+}, { immediate: true })
 
 onMounted(() => {
   // Initialize theme

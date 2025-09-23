@@ -32,19 +32,33 @@
           </div>
 
           <div v-if="showEmailForm" class="email-form">
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" v-model="email" class="form-input" />
-            </div>
-            <div class="form-group">
-              <label>Password</label>
-              <input type="password" v-model="password" class="form-input" />
-            </div>
-            <div v-if="isRegister" class="form-group">
-              <label>Confirm Password</label>
-              <input type="password" v-model="confirmPassword" class="form-input" />
-            </div>
-            <button class="submit-btn">{{ submitText }}</button>
+            <form @submit.prevent="handleSubmit">
+              <div v-if="isRegister" class="form-group">
+                <label>Nom</label>
+                <input type="text" v-model="name" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" v-model="email" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" v-model="password" class="form-input" required />
+              </div>
+              <div v-if="isRegister" class="form-group">
+                <label>Confirmer le mot de passe</label>
+                <input type="password" v-model="confirmPassword" class="form-input" required />
+              </div>
+              
+              <div v-if="error" class="error-message">
+                {{ error }}
+              </div>
+              
+              <button type="submit" class="submit-btn" :disabled="isLoading">
+                <span v-if="isLoading">{{ isRegister ? 'Inscription...' : 'Connexion...' }}</span>
+                <span v-else>{{ submitText }}</span>
+              </button>
+            </form>
           </div>
 
           <div class="form-footer">
@@ -82,6 +96,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
 
 interface Props {
   isRegister?: boolean
@@ -93,16 +109,49 @@ const props = withDefaults(defineProps<Props>(), {
   imageRight: false
 })
 
+const router = useRouter()
+const { register, isLoading } = useAuth()
+
 const showEmailForm = ref(false)
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const name = ref('')
+const error = ref('')
 
 const title = computed(() => props.isRegister ? 'Create an account' : 'Welcome back')
 const submitText = computed(() => props.isRegister ? 'Sign up' : 'Log in')
-const switchText = computed(() => props.isRegister ? 'Already have an account?' : "Don't have an account?")
+const switchText = computed(() => props.isRegister ? 'Vous avez déjà un compte ?' : "Vous n'avez pas de compte ?")
 const switchRoute = computed(() => props.isRegister ? '/login' : '/register')
-const switchLinkText = computed(() => props.isRegister ? 'Log in' : 'Sign up')
+const switchLinkText = computed(() => props.isRegister ? 'Se connecter' : "S'inscrire")
+
+const handleSubmit = async () => {
+  if (!showEmailForm.value) return
+  
+  error.value = ''
+  
+  if (props.isRegister) {
+    if (password.value !== confirmPassword.value) {
+      error.value = 'Les mots de passe ne correspondent pas'
+      return
+    }
+    
+    try {
+      const result = await register({
+        name: name.value,
+        email: email.value,
+        password: password.value,
+        password_confirmation: confirmPassword.value
+      })
+      
+      if (result.success) {
+        router.push(`/verify-email?userId=${result.user_id}`)
+      }
+    } catch (err: any) {
+      error.value = err.message || 'Erreur lors de l\'inscription'
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -370,6 +419,18 @@ const switchLinkText = computed(() => props.isRegister ? 'Log in' : 'Sign up')
   font-size: 0.875rem;
   display: block;
   margin: 0 auto;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

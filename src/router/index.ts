@@ -8,6 +8,7 @@ import Admin from '../views/Admin.vue'
 import Legal from '../views/Legal.vue'
 import Login from '../views/auth/Login.vue'
 import Register from '../views/auth/Register.vue'
+import EmailVerification from '../views/auth/EmailVerification.vue'
 
 const routes = [
   {
@@ -68,6 +69,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/verify-email',
+    name: 'EmailVerification',
+    component: EmailVerification
   }
 ]
 

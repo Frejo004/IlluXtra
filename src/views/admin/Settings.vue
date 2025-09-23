@@ -86,8 +86,12 @@
               <div v-for="category in categories" :key="category.id" class="category-item">
                 <span class="category-name">{{ category.name }}</span>
                 <div class="category-actions">
-                  <button class="action-btn edit" @click="editCategory(category)">✏️</button>
-                  <button class="action-btn delete" @click="deleteCategory(category.id)">🗑️</button>
+                  <button class="action-btn edit" @click="editCategory(category)">
+                    <Icon icon="system-uicons:write" />
+                  </button>
+                  <button class="action-btn delete" @click="deleteCategory(category.id)">
+                    <Icon icon="system-uicons:trash" />
+                  </button>
                 </div>
               </div>
               
@@ -122,6 +126,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import AdminSidebar from '../../components/admin/AdminSidebar.vue'
+import { Icon } from '@iconify/vue'
 import ConfirmModal from '../../components/admin/ConfirmModal.vue'
 import { useConfirm } from '../../composables/useConfirm'
 

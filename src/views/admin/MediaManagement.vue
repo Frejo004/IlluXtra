@@ -46,12 +46,22 @@
               <span class="category-badge">{{ formatCategory(media.category) }}</span>
             </div>
             <div class="col-stats">
-              <div class="stat-item">⬇ {{ media.downloads }}</div>
-              <div class="stat-item">❤️ {{ media.likes }}</div>
+              <div class="stat-item">
+                <Icon icon="system-uicons:download" class="stat-icon" />
+                {{ media.downloads }}
+              </div>
+              <div class="stat-item">
+                <Icon icon="system-uicons:heart" class="stat-icon" />
+                {{ media.likes }}
+              </div>
             </div>
             <div class="col-actions">
-              <button class="action-btn edit" @click="editMedia(media)">✏️</button>
-              <button class="action-btn delete" @click="deleteMedia(media)">🗑️</button>
+              <button class="action-btn edit" @click="editMedia(media)">
+                <Icon icon="system-uicons:write" />
+              </button>
+              <button class="action-btn delete" @click="deleteMedia(media)">
+                <Icon icon="system-uicons:trash" />
+              </button>
             </div>
           </div>
         </div>
@@ -106,6 +116,7 @@ import Toast from '../../components/admin/Toast.vue'
 import { useMediaStore, type MediaItem } from '../../composables/useMediaStore'
 import { useConfirm } from '../../composables/useConfirm'
 import { useToast } from '../../composables/useToast'
+import { Icon } from '@iconify/vue'
 
 const { mediaItems } = useMediaStore()
 
@@ -414,6 +425,12 @@ const deleteMedia = async (media: MediaItem) => {
 
 .action-btn.delete {
   background: #fee2e2;
+}
+
+.stat-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
 }
 
 @media (max-width: 768px) {

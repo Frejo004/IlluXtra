@@ -51,8 +51,12 @@
               <span class="status-badge" :class="user.status">{{ formatStatus(user.status) }}</span>
             </div>
             <div class="col-actions">
-              <button class="action-btn edit" @click="editUser(user)">✏️</button>
-              <button class="action-btn ban" @click="toggleUserStatus(user)">🚫</button>
+              <button class="action-btn edit" @click="editUser(user)">
+                <Icon icon="system-uicons:write" />
+              </button>
+              <button class="action-btn delete" @click="deleteUser(user)">
+                <Icon icon="system-uicons:trash" />
+              </button>
             </div>
           </div>
         </div>
@@ -106,6 +110,7 @@ import EditModal from '../../components/admin/EditModal.vue'
 import Toast from '../../components/admin/Toast.vue'
 import { useConfirm } from '../../composables/useConfirm'
 import { useToast } from '../../composables/useToast'
+import { Icon } from '@iconify/vue'
 
 interface User {
   id: string
@@ -235,6 +240,28 @@ const updateUser = (data: any) => {
   }
 }
 
+const deleteUser = async (user: User) => {
+  const confirmed = await confirm({
+    title: 'Supprimer l\'utilisateur',
+    message: `Êtes-vous sûr de vouloir supprimer "${user.name}" ? Cette action est irréversible.`,
+    type: 'danger',
+    confirmText: 'Supprimer',
+    cancelText: 'Annuler'
+  })
+  
+  if (confirmed) {
+    try {
+      const index = users.value.findIndex(u => u.id === user.id)
+      if (index !== -1) {
+        users.value.splice(index, 1)
+        success('Utilisateur supprimé', `L'utilisateur "${user.name}" a été supprimé avec succès.`)
+      }
+    } catch (err) {
+      error('Erreur', 'Impossible de supprimer l\'utilisateur. Veuillez réessayer.')
+    }
+  }
+}
+
 const toggleUserStatus = async (user: User) => {
   const action = user.status === 'active' ? 'bannir' : 'débannir'
   const confirmed = await confirm({
@@ -339,7 +366,7 @@ const toggleUserStatus = async (user: User) => {
 
 .table-header, .table-row {
   display: grid;
-  grid-template-columns: 60px 1fr 200px 120px 100px 100px;
+  grid-template-columns: 60px 1fr 200px 120px 100px 120px;
   gap: 1rem;
   padding: 1rem;
   align-items: center;
@@ -446,8 +473,12 @@ const toggleUserStatus = async (user: User) => {
   background: #fef3c7;
 }
 
-.action-btn.ban {
+.action-btn.delete {
   background: #fee2e2;
+}
+
+.action-btn.ban {
+  background: #fef3c7;
 }
 
 @media (max-width: 768px) {

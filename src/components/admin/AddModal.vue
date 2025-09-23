@@ -3,7 +3,9 @@
     <div class="modal-content" @click.stop>
       <div class="modal-header">
         <h2>{{ title }}</h2>
-        <button class="close-btn" @click="close">✕</button>
+        <button class="close-btn" @click="close">
+          <Icon icon="system-uicons:cross" />
+        </button>
       </div>
       
       <form @submit.prevent="submit" class="modal-form">
@@ -68,6 +70,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { Icon } from '@iconify/vue'
 
 interface Field {
   name: string

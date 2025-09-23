@@ -1,17 +1,21 @@
 <template>
   <Transition name="toast">
     <div v-if="isVisible" class="toast" :class="type">
-      <div class="toast-icon">{{ getIcon() }}</div>
+      <Icon :icon="getIcon()" class="toast-icon" />
       <div class="toast-content">
         <h4>{{ title }}</h4>
         <p>{{ message }}</p>
       </div>
-      <button @click="close" class="toast-close">✕</button>
+      <button @click="close" class="toast-close">
+        <Icon icon="system-uicons:cross" />
+      </button>
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
+
 interface Props {
   isVisible: boolean
   type: 'success' | 'error' | 'warning' | 'info'
@@ -28,10 +32,10 @@ const emit = defineEmits<Emits>()
 
 const getIcon = () => {
   const icons = {
-    success: '✅',
-    error: '❌',
-    warning: '⚠️',
-    info: 'ℹ️'
+    success: 'system-uicons:check',
+    error: 'system-uicons:cross',
+    warning: 'system-uicons:warning',
+    info: 'system-uicons:info'
   }
   return icons[props.type]
 }

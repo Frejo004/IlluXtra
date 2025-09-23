@@ -12,7 +12,7 @@
         class="nav-item"
         :class="{ active: $route.path === item.path }"
       >
-        <span class="nav-icon">{{ item.icon }}</span>
+        <Icon :icon="item.icon" class="nav-icon" />
         <span class="nav-text">{{ item.name }}</span>
       </router-link>
     </nav>
@@ -20,12 +20,14 @@
 </template>
 
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
+
 const menuItems = [
-  { name: 'Dashboard', path: '/admin', icon: '📊' },
-  { name: 'Médias', path: '/admin/media', icon: '🖼️' },
-  { name: 'Utilisateurs', path: '/admin/users', icon: '👥' },
-  { name: 'Analytics', path: '/admin/analytics', icon: '📈' },
-  { name: 'Paramètres', path: '/admin/settings', icon: '⚙️' }
+  { name: 'Dashboard', path: '/admin', icon: 'system-uicons:dashboard' },
+  { name: 'Médias', path: '/admin/media', icon: 'system-uicons:picture' },
+  { name: 'Utilisateurs', path: '/admin/users', icon: 'system-uicons:users' },
+  { name: 'Analytics', path: '/admin/analytics', icon: 'system-uicons:graph-bar' },
+  { name: 'Paramètres', path: '/admin/settings', icon: 'system-uicons:cog' }
 ]
 </script>
 

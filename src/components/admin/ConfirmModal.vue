@@ -2,7 +2,7 @@
   <div v-if="isOpen" class="modal-overlay" @click="cancel">
     <div class="modal-content" @click.stop>
       <div class="modal-icon" :class="type">
-        {{ getIcon() }}
+        <Icon :icon="getIcon()" />
       </div>
       
       <div class="modal-body">
@@ -23,6 +23,8 @@
 </template>
 
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
+
 interface Props {
   isOpen: boolean
   title: string
@@ -47,9 +49,9 @@ const emit = defineEmits<Emits>()
 
 const getIcon = () => {
   const icons = {
-    danger: '⚠️',
-    warning: '❓',
-    info: 'ℹ️'
+    danger: 'system-uicons:warning',
+    warning: 'system-uicons:question',
+    info: 'system-uicons:info'
   }
   return icons[props.type]
 }

@@ -183,17 +183,13 @@ const switchLinkText = computed(() => props.isRegister ? 'Log in' : 'Sign up')
   align-items: center;
   gap: 0.5rem;
   text-decoration: none;
-  justify-content: flex-end;
+  justify-content: center;
   margin-bottom: 3rem;
   transition: transform 0.3s;
 }
 
 .brand:hover {
   transform: scale(1.05);
-}
-
-.form-left .brand {
-  justify-content: flex-start;
 }
 
 .logo-icon {

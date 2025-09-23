@@ -85,6 +85,14 @@
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />
+    
+    <Toast 
+      :isVisible="isVisible"
+      :type="toastData.type"
+      :title="toastData.title"
+      :message="toastData.message"
+      @close="hideToast"
+    />
   </div>
 </template>
 
@@ -94,8 +102,10 @@ import AdminSidebar from '../../components/admin/AdminSidebar.vue'
 import ConfirmModal from '../../components/admin/ConfirmModal.vue'
 import AddModal from '../../components/admin/AddModal.vue'
 import EditModal from '../../components/admin/EditModal.vue'
+import Toast from '../../components/admin/Toast.vue'
 import { useMediaStore, type MediaItem } from '../../composables/useMediaStore'
 import { useConfirm } from '../../composables/useConfirm'
+import { useToast } from '../../composables/useToast'
 
 const { mediaItems } = useMediaStore()
 
@@ -149,6 +159,7 @@ const filteredMedia = computed(() => {
 })
 
 const { isOpen, confirmOptions, confirm, handleConfirm, handleCancel } = useConfirm()
+const { isVisible, toastData, success, error, hideToast } = useToast()
 
 const formatCategory = (category: string) => {
   const categories = {
@@ -160,25 +171,30 @@ const formatCategory = (category: string) => {
 }
 
 const addMedia = (data: any) => {
-  const newMedia: MediaItem = {
-    id: Date.now().toString(),
-    title: data.title,
-    description: data.description,
-    tags: data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : [],
-    category: data.category,
-    url: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
-    thumbnail: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
-    author: data.author,
-    downloads: 0,
-    likes: 0,
-    createdAt: new Date().toISOString().split('T')[0],
-    size: '2.3 MB',
-    resolution: '1920x1280',
-    format: 'JPG',
-    colors: ['#8B4513', '#D2691E', '#F4A460']
+  try {
+    const newMedia: MediaItem = {
+      id: Date.now().toString(),
+      title: data.title,
+      description: data.description,
+      tags: data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : [],
+      category: data.category,
+      url: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+      thumbnail: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
+      author: data.author,
+      downloads: 0,
+      likes: 0,
+      createdAt: new Date().toISOString().split('T')[0],
+      size: '2.3 MB',
+      resolution: '1920x1280',
+      format: 'JPG',
+      colors: ['#8B4513', '#D2691E', '#F4A460']
+    }
+    mediaItems.value.push(newMedia)
+    showAddModal.value = false
+    success('Média ajouté', `Le média "${data.title}" a été ajouté avec succès.`)
+  } catch (err) {
+    error('Erreur', 'Impossible d\'ajouter le média. Veuillez réessayer.')
   }
-  mediaItems.value.push(newMedia)
-  showAddModal.value = false
 }
 
 const editMedia = (media: MediaItem) => {
@@ -187,20 +203,25 @@ const editMedia = (media: MediaItem) => {
 }
 
 const updateMedia = (data: any) => {
-  if (editingMedia.value) {
-    const index = mediaItems.value.findIndex(m => m.id === editingMedia.value!.id)
-    if (index !== -1) {
-      mediaItems.value[index] = {
-        ...mediaItems.value[index],
-        title: data.title,
-        description: data.description,
-        category: data.category,
-        author: data.author,
-        tags: data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : []
+  try {
+    if (editingMedia.value) {
+      const index = mediaItems.value.findIndex(m => m.id === editingMedia.value!.id)
+      if (index !== -1) {
+        mediaItems.value[index] = {
+          ...mediaItems.value[index],
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          author: data.author,
+          tags: data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : []
+        }
+        success('Média modifié', `Le média "${data.title}" a été modifié avec succès.`)
       }
     }
+    showEditModal.value = false
+  } catch (err) {
+    error('Erreur', 'Impossible de modifier le média. Veuillez réessayer.')
   }
-  showEditModal.value = false
 }
 
 const deleteMedia = async (media: MediaItem) => {
@@ -213,7 +234,15 @@ const deleteMedia = async (media: MediaItem) => {
   })
   
   if (confirmed) {
-    console.log('Média supprimé:', media.id)
+    try {
+      const index = mediaItems.value.findIndex(m => m.id === media.id)
+      if (index !== -1) {
+        mediaItems.value.splice(index, 1)
+        success('Média supprimé', `Le média "${media.title}" a été supprimé avec succès.`)
+      }
+    } catch (err) {
+      error('Erreur', 'Impossible de supprimer le média. Veuillez réessayer.')
+    }
   }
 }
 </script>

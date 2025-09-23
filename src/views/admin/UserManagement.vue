@@ -86,6 +86,14 @@
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />
+    
+    <Toast 
+      :isVisible="isVisible"
+      :type="toastData.type"
+      :title="toastData.title"
+      :message="toastData.message"
+      @close="hideToast"
+    />
   </div>
 </template>
 
@@ -95,7 +103,9 @@ import AdminSidebar from '../../components/admin/AdminSidebar.vue'
 import ConfirmModal from '../../components/admin/ConfirmModal.vue'
 import AddModal from '../../components/admin/AddModal.vue'
 import EditModal from '../../components/admin/EditModal.vue'
+import Toast from '../../components/admin/Toast.vue'
 import { useConfirm } from '../../composables/useConfirm'
+import { useToast } from '../../composables/useToast'
 
 interface User {
   id: string
@@ -176,22 +186,28 @@ const formatStatus = (status: string) => {
 }
 
 const { isOpen, confirmOptions, confirm, handleConfirm, handleCancel } = useConfirm()
+const { isVisible, toastData, success, error, hideToast } = useToast()
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
 const addUser = (data: any) => {
-  const newUser: User = {
-    id: Date.now().toString(),
-    name: data.name,
-    email: data.email,
-    role: data.role,
-    status: 'active',
-    createdAt: new Date().toISOString().split('T')[0]
+  try {
+    const newUser: User = {
+      id: Date.now().toString(),
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      status: 'active',
+      createdAt: new Date().toISOString().split('T')[0]
+    }
+    users.value.push(newUser)
+    showAddModal.value = false
+    success('Utilisateur ajouté', `L'utilisateur "${data.name}" a été ajouté avec succès.`)
+  } catch (err) {
+    error('Erreur', 'Impossible d\'ajouter l\'utilisateur. Veuillez réessayer.')
   }
-  users.value.push(newUser)
-  showAddModal.value = false
 }
 
 const editUser = (user: User) => {
@@ -200,18 +216,23 @@ const editUser = (user: User) => {
 }
 
 const updateUser = (data: any) => {
-  if (editingUser.value) {
-    const index = users.value.findIndex(u => u.id === editingUser.value!.id)
-    if (index !== -1) {
-      users.value[index] = {
-        ...users.value[index],
-        name: data.name,
-        email: data.email,
-        role: data.role
+  try {
+    if (editingUser.value) {
+      const index = users.value.findIndex(u => u.id === editingUser.value!.id)
+      if (index !== -1) {
+        users.value[index] = {
+          ...users.value[index],
+          name: data.name,
+          email: data.email,
+          role: data.role
+        }
+        success('Utilisateur modifié', `L'utilisateur "${data.name}" a été modifié avec succès.`)
       }
     }
+    showEditModal.value = false
+  } catch (err) {
+    error('Erreur', 'Impossible de modifier l\'utilisateur. Veuillez réessayer.')
   }
-  showEditModal.value = false
 }
 
 const toggleUserStatus = async (user: User) => {
@@ -225,7 +246,14 @@ const toggleUserStatus = async (user: User) => {
   })
   
   if (confirmed) {
-    user.status = user.status === 'active' ? 'banned' : 'active'
+    try {
+      const oldStatus = user.status
+      user.status = user.status === 'active' ? 'banned' : 'active'
+      const actionText = oldStatus === 'active' ? 'banni' : 'débanni'
+      success('Statut modifié', `L'utilisateur "${user.name}" a été ${actionText} avec succès.`)
+    } catch (err) {
+      error('Erreur', 'Impossible de modifier le statut de l\'utilisateur.')
+    }
   }
 }
 </script>

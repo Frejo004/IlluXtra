@@ -1,22 +1,28 @@
 <template>
   <div id="app" class="min-h-screen transition-colors" :class="isDark ? 'dark' : ''">
-    <AppHeader />
+    <AppHeader v-if="!isAuthPage" />
     
     <main>
       <router-view />
     </main>
     
-    <AppFooter />
+    <AppFooter v-if="!isAuthPage" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { onMounted, watch, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
 import { useTheme } from './composables/useTheme'
 
 const { isDark } = useTheme()
+const route = useRoute()
+
+const isAuthPage = computed(() => {
+  return route.path === '/login' || route.path === '/register'
+})
 
 watch(isDark, (dark) => {
   if (dark) {

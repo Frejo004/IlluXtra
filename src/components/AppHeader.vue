@@ -29,9 +29,9 @@
           <button @click="toggleTheme" class="theme-btn">
             {{ isDark ? '☀️' : '🌙' }}
           </button>
-          <button class="login-btn">
+          <router-link to="/login" class="login-btn">
             Se connecter
-          </button>
+          </router-link>
           <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-btn">
             ☰
           </button>
@@ -214,6 +214,8 @@ const navigation = [
 }
 
 .login-btn {
+  display: inline-flex;
+  align-items: center;
   padding: 0.5rem 1rem;
   border: 1px solid #6366f1;
   border-radius: 0.5rem;
@@ -221,6 +223,7 @@ const navigation = [
   color: #6366f1;
   font-size: 0.875rem;
   font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
   transition: all 0.3s;
 }

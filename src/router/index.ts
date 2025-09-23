@@ -5,10 +5,6 @@ import MediaDetail from '../views/MediaDetail.vue'
 import Blog from '../views/Blog.vue'
 import Contact from '../views/Contact.vue'
 import Admin from '../views/Admin.vue'
-import MediaManagement from '../views/admin/MediaManagement.vue'
-import UserManagement from '../views/admin/UserManagement.vue'
-import Analytics from '../views/admin/Analytics.vue'
-import Settings from '../views/admin/Settings.vue'
 import Legal from '../views/Legal.vue'
 import Login from '../views/auth/Login.vue'
 import Register from '../views/auth/Register.vue'
@@ -57,26 +53,6 @@ const routes = [
     path: '/admin',
     name: 'Admin',
     component: Admin
-  },
-  {
-    path: '/admin/media',
-    name: 'AdminMedia',
-    component: MediaManagement
-  },
-  {
-    path: '/admin/users',
-    name: 'AdminUsers',
-    component: UserManagement
-  },
-  {
-    path: '/admin/analytics',
-    name: 'AdminAnalytics',
-    component: Analytics
-  },
-  {
-    path: '/admin/settings',
-    name: 'AdminSettings',
-    component: Settings
   },
   {
     path: '/legal',

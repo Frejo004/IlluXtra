@@ -5,7 +5,7 @@
     <main class="admin-main">
       <div class="admin-header">
         <h1>Gestion des Médias</h1>
-        <button class="btn-primary">+ Ajouter un média</button>
+        <button class="btn-primary" @click="showAddModal = true">+ Ajouter un média</button>
       </div>
       
       <div class="admin-content">
@@ -50,13 +50,30 @@
               <div class="stat-item">❤️ {{ media.likes }}</div>
             </div>
             <div class="col-actions">
-              <button class="action-btn edit">✏️</button>
+              <button class="action-btn edit" @click="editMedia(media)">✏️</button>
               <button class="action-btn delete" @click="deleteMedia(media)">🗑️</button>
             </div>
           </div>
         </div>
       </div>
     </main>
+    
+    <AddModal 
+      :isOpen="showAddModal"
+      title="Ajouter un média"
+      :fields="mediaFields"
+      @close="showAddModal = false"
+      @submit="addMedia"
+    />
+    
+    <EditModal 
+      :isOpen="showEditModal"
+      title="Modifier le média"
+      :fields="editFields"
+      :data="editingMedia"
+      @close="showEditModal = false"
+      @submit="updateMedia"
+    />
     
     <ConfirmModal 
       :isOpen="isOpen"
@@ -75,6 +92,8 @@
 import { ref, computed } from 'vue'
 import AdminSidebar from '../../components/admin/AdminSidebar.vue'
 import ConfirmModal from '../../components/admin/ConfirmModal.vue'
+import AddModal from '../../components/admin/AddModal.vue'
+import EditModal from '../../components/admin/EditModal.vue'
 import { useMediaStore, type MediaItem } from '../../composables/useMediaStore'
 import { useConfirm } from '../../composables/useConfirm'
 
@@ -82,6 +101,34 @@ const { mediaItems } = useMediaStore()
 
 const selectedCategory = ref('all')
 const searchQuery = ref('')
+const showAddModal = ref(false)
+const showEditModal = ref(false)
+const editingMedia = ref<MediaItem | null>(null)
+
+const mediaFields = [
+  { name: 'file', label: 'Fichier', type: 'file' as const, required: true },
+  { name: 'title', label: 'Titre', type: 'text' as const, required: true, placeholder: 'Titre du média' },
+  { name: 'description', label: 'Description', type: 'textarea' as const, required: true, placeholder: 'Description du média' },
+  { name: 'category', label: 'Catégorie', type: 'select' as const, required: true, placeholder: 'Sélectionner une catégorie', options: [
+    { value: 'photos', label: 'Photos' },
+    { value: 'videos', label: 'Vidéos' },
+    { value: 'illustrations', label: 'Illustrations' }
+  ]},
+  { name: 'author', label: 'Auteur', type: 'text' as const, required: true, placeholder: 'Nom de l\'auteur' },
+  { name: 'tags', label: 'Tags', type: 'text' as const, placeholder: 'portrait, ai, moderne (séparés par des virgules)' }
+]
+
+const editFields = [
+  { name: 'title', label: 'Titre', type: 'text' as const, required: true },
+  { name: 'description', label: 'Description', type: 'textarea' as const, required: true },
+  { name: 'category', label: 'Catégorie', type: 'select' as const, required: true, options: [
+    { value: 'photos', label: 'Photos' },
+    { value: 'videos', label: 'Vidéos' },
+    { value: 'illustrations', label: 'Illustrations' }
+  ]},
+  { name: 'author', label: 'Auteur', type: 'text' as const, required: true },
+  { name: 'tags', label: 'Tags', type: 'text' as const }
+]
 
 const filteredMedia = computed(() => {
   let filtered = mediaItems.value
@@ -110,6 +157,50 @@ const formatCategory = (category: string) => {
     illustrations: 'Illustration'
   }
   return categories[category as keyof typeof categories] || category
+}
+
+const addMedia = (data: any) => {
+  const newMedia: MediaItem = {
+    id: Date.now().toString(),
+    title: data.title,
+    description: data.description,
+    tags: data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : [],
+    category: data.category,
+    url: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+    thumbnail: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
+    author: data.author,
+    downloads: 0,
+    likes: 0,
+    createdAt: new Date().toISOString().split('T')[0],
+    size: '2.3 MB',
+    resolution: '1920x1280',
+    format: 'JPG',
+    colors: ['#8B4513', '#D2691E', '#F4A460']
+  }
+  mediaItems.value.push(newMedia)
+  showAddModal.value = false
+}
+
+const editMedia = (media: MediaItem) => {
+  editingMedia.value = { ...media, tags: media.tags.join(', ') }
+  showEditModal.value = true
+}
+
+const updateMedia = (data: any) => {
+  if (editingMedia.value) {
+    const index = mediaItems.value.findIndex(m => m.id === editingMedia.value!.id)
+    if (index !== -1) {
+      mediaItems.value[index] = {
+        ...mediaItems.value[index],
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        author: data.author,
+        tags: data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : []
+      }
+    }
+  }
+  showEditModal.value = false
 }
 
 const deleteMedia = async (media: MediaItem) => {

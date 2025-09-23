@@ -5,7 +5,7 @@
     <main class="admin-main">
       <div class="admin-header">
         <h1>Gestion des Utilisateurs</h1>
-        <button class="btn-primary">+ Nouvel utilisateur</button>
+        <button class="btn-primary" @click="showAddModal = true">+ Nouvel utilisateur</button>
       </div>
       
       <div class="admin-content">
@@ -51,13 +51,30 @@
               <span class="status-badge" :class="user.status">{{ formatStatus(user.status) }}</span>
             </div>
             <div class="col-actions">
-              <button class="action-btn edit">✏️</button>
+              <button class="action-btn edit" @click="editUser(user)">✏️</button>
               <button class="action-btn ban" @click="toggleUserStatus(user)">🚫</button>
             </div>
           </div>
         </div>
       </div>
     </main>
+    
+    <AddModal 
+      :isOpen="showAddModal"
+      title="Nouvel utilisateur"
+      :fields="userFields"
+      @close="showAddModal = false"
+      @submit="addUser"
+    />
+    
+    <EditModal 
+      :isOpen="showEditModal"
+      title="Modifier l'utilisateur"
+      :fields="editUserFields"
+      :data="editingUser"
+      @close="showEditModal = false"
+      @submit="updateUser"
+    />
     
     <ConfirmModal 
       :isOpen="isOpen"
@@ -76,6 +93,8 @@
 import { ref, computed } from 'vue'
 import AdminSidebar from '../../components/admin/AdminSidebar.vue'
 import ConfirmModal from '../../components/admin/ConfirmModal.vue'
+import AddModal from '../../components/admin/AddModal.vue'
+import EditModal from '../../components/admin/EditModal.vue'
 import { useConfirm } from '../../composables/useConfirm'
 
 interface User {
@@ -96,6 +115,29 @@ const users = ref<User[]>([
 
 const selectedRole = ref('all')
 const searchQuery = ref('')
+const showAddModal = ref(false)
+const showEditModal = ref(false)
+const editingUser = ref<User | null>(null)
+
+const userFields = [
+  { name: 'name', label: 'Nom complet', type: 'text' as const, required: true, placeholder: 'John Doe' },
+  { name: 'email', label: 'Email', type: 'email' as const, required: true, placeholder: 'john@example.com' },
+  { name: 'role', label: 'Rôle', type: 'select' as const, required: true, placeholder: 'Sélectionner un rôle', options: [
+    { value: 'user', label: 'Utilisateur' },
+    { value: 'moderator', label: 'Modérateur' },
+    { value: 'admin', label: 'Administrateur' }
+  ]}
+]
+
+const editUserFields = [
+  { name: 'name', label: 'Nom complet', type: 'text' as const, required: true },
+  { name: 'email', label: 'Email', type: 'email' as const, required: true },
+  { name: 'role', label: 'Rôle', type: 'select' as const, required: true, options: [
+    { value: 'user', label: 'Utilisateur' },
+    { value: 'moderator', label: 'Modérateur' },
+    { value: 'admin', label: 'Administrateur' }
+  ]}
+]
 
 const filteredUsers = computed(() => {
   let filtered = users.value
@@ -137,6 +179,39 @@ const { isOpen, confirmOptions, confirm, handleConfirm, handleCancel } = useConf
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('fr-FR')
+}
+
+const addUser = (data: any) => {
+  const newUser: User = {
+    id: Date.now().toString(),
+    name: data.name,
+    email: data.email,
+    role: data.role,
+    status: 'active',
+    createdAt: new Date().toISOString().split('T')[0]
+  }
+  users.value.push(newUser)
+  showAddModal.value = false
+}
+
+const editUser = (user: User) => {
+  editingUser.value = { ...user }
+  showEditModal.value = true
+}
+
+const updateUser = (data: any) => {
+  if (editingUser.value) {
+    const index = users.value.findIndex(u => u.id === editingUser.value!.id)
+    if (index !== -1) {
+      users.value[index] = {
+        ...users.value[index],
+        name: data.name,
+        email: data.email,
+        role: data.role
+      }
+    }
+  }
+  showEditModal.value = false
 }
 
 const toggleUserStatus = async (user: User) => {

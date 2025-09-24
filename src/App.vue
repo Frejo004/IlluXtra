@@ -21,7 +21,7 @@ const { isDark } = useTheme()
 const route = useRoute()
 
 const isAuthPage = computed(() => {
-  return route.path === '/login' || route.path === '/register'
+  return route.path === '/login' || route.path === '/register' || route.path.startsWith('/admin')
 })
 
 watch(isDark, (dark) => {

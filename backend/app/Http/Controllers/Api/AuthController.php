@@ -51,6 +51,8 @@ class AuthController extends Controller
             'message' => 'Inscription réussie. Vérifiez votre email pour le code de confirmation.',
             'user_id' => $user->id
         ], 201);
+
+       
     }
 
     public function verifyEmail(Request $request)
@@ -139,6 +141,128 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Nouveau code envoyé'
+        ]);
+    }
+
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email ou mot de passe incorrect'
+            ], 401);
+        }
+
+        if (!$user->is_verified) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Veuillez vérifier votre email avant de vous connecter',
+                'user_id' => $user->id
+            ], 403);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Connexion réussie',
+            'user' => $user,
+            'token' => $token
+        ]);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email|exists:users,email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        $resetCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $user->update([
+            'verification_code' => $resetCode,
+            'verification_code_expires_at' => Carbon::now()->addMinutes(15),
+        ]);
+
+        Mail::send('emails.reset-password', ['code' => $resetCode], function ($message) use ($user) {
+            $message->to($user->email)
+                    ->subject('Code de réinitialisation - IlluXtra');
+        });
+        
+        \Log::info('Code de réinitialisation pour ' . $user->email . ': ' . $resetCode);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Code de réinitialisation envoyé par email',
+            'user_id' => $user->id
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'code' => 'required|string|size:6',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::find($request->user_id);
+
+        if (!$user->verification_code || $user->verification_code !== $request->code) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Code de réinitialisation invalide'
+            ], 400);
+        }
+
+        if (Carbon::now()->isAfter($user->verification_code_expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Code de réinitialisation expiré'
+            ], 400);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+            'verification_code' => null,
+            'verification_code_expires_at' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mot de passe réinitialisé avec succès'
         ]);
     }
 }

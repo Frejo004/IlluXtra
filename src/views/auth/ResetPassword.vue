@@ -9,20 +9,42 @@
           </router-link>
 
           <div class="form-header">
-            <h2>Vérification de votre email</h2>
-            <p class="subtitle">Nous avons envoyé un code de vérification à votre adresse email</p>
+            <h2>Nouveau mot de passe</h2>
+            <p class="subtitle">Entrez le code reçu par email et votre nouveau mot de passe</p>
           </div>
 
-          <form class="email-form" @submit.prevent="handleVerification">
+          <form class="email-form" @submit.prevent="handleResetPassword">
             <div class="form-group">
-              <label>Code de vérification</label>
+              <label>Code de réinitialisation</label>
               <input
-                v-model="verificationCode"
+                v-model="code"
                 type="text"
                 maxlength="6"
                 required
                 class="form-input code-input"
                 placeholder="000000"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Nouveau mot de passe</label>
+              <input
+                v-model="password"
+                type="password"
+                required
+                class="form-input"
+                placeholder="Nouveau mot de passe"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Confirmer le mot de passe</label>
+              <input
+                v-model="passwordConfirmation"
+                type="password"
+                required
+                class="form-input"
+                placeholder="Confirmer le mot de passe"
               />
             </div>
 
@@ -36,24 +58,19 @@
 
             <button
               type="submit"
-              :disabled="isLoading || verificationCode.length !== 6"
+              :disabled="isLoading || code.length !== 6"
               class="submit-btn"
             >
-              <span v-if="isLoading">Vérification...</span>
-              <span v-else>Vérifier</span>
+              <span v-if="isLoading">Réinitialisation...</span>
+              <span v-else>Réinitialiser</span>
             </button>
           </form>
 
           <div class="form-footer">
-            <button
-              type="button"
-              @click="handleResendCode"
-              :disabled="isLoading || cooldown > 0"
-              class="link-btn"
-            >
-              <span v-if="cooldown > 0">Renvoyer le code dans {{ cooldown }}s</span>
-              <span v-else>Renvoyer le code</span>
-            </button>
+            <p class="switch-form">
+              Vous vous souvenez de votre mot de passe ?
+              <router-link to="/login" class="link-btn">Se connecter</router-link>
+            </p>
           </div>
         </div>
       </div>
@@ -75,65 +92,44 @@ import { useAuth } from '../../composables/useAuth'
 
 const router = useRouter()
 const route = useRoute()
-const { verifyEmail, resendCode, isLoading } = useAuth()
+const { resetPassword, isLoading } = useAuth()
 
-const verificationCode = ref('')
+const code = ref('')
+const password = ref('')
+const passwordConfirmation = ref('')
 const error = ref('')
 const success = ref('')
-const cooldown = ref(0)
 const userId = ref<number | null>(null)
 
 onMounted(() => {
   userId.value = Number(route.query.userId)
   if (!userId.value) {
-    router.push('/register')
+    router.push('/forgot-password')
   }
 })
 
-const handleVerification = async () => {
+const handleResetPassword = async () => {
   if (!userId.value) return
   
   error.value = ''
   success.value = ''
   
+  if (password.value !== passwordConfirmation.value) {
+    error.value = 'Les mots de passe ne correspondent pas'
+    return
+  }
+  
   try {
-    const result = await verifyEmail(userId.value, verificationCode.value)
+    const result = await resetPassword(userId.value, code.value, password.value, passwordConfirmation.value)
     if (result.success) {
       success.value = result.message
       setTimeout(() => {
-        router.push('/')
+        router.push('/login')
       }, 2000)
     }
   } catch (err: any) {
-    error.value = err.message || 'Erreur lors de la vérification'
+    error.value = err.message || 'Erreur lors de la réinitialisation'
   }
-}
-
-const handleResendCode = async () => {
-  if (!userId.value) return
-  
-  error.value = ''
-  success.value = ''
-  
-  try {
-    const result = await resendCode(userId.value)
-    if (result.success) {
-      success.value = result.message
-      startCooldown()
-    }
-  } catch (err: any) {
-    error.value = err.message || 'Erreur lors du renvoi du code'
-  }
-}
-
-const startCooldown = () => {
-  cooldown.value = 60
-  const interval = setInterval(() => {
-    cooldown.value--
-    if (cooldown.value <= 0) {
-      clearInterval(interval)
-    }
-  }, 1000)
 }
 </script>
 
@@ -330,23 +326,17 @@ const startCooldown = () => {
   color: #9ca3af;
 }
 
+.switch-form {
+  margin-bottom: 1rem;
+}
+
 .link-btn {
-  background: none;
-  border: none;
   color: #6366f1;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 0.875rem;
-}
-
-.link-btn:hover:not(:disabled) {
-  color: #4f46e5;
-}
-
-.link-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
   text-decoration: none;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
 }
 
 .error-message {
@@ -375,10 +365,6 @@ const startCooldown = () => {
   
   .auth-form {
     order: 2 !important;
-  }
-  
-  .brand {
-    text-align: center !important;
   }
 }
 </style>

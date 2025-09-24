@@ -74,6 +74,10 @@
               By continuing, you agree to IlluXtra Terms of Use and Privacy Policy.
             </p>
             
+            <p v-if="showEmailForm && !isRegister" class="forgot-password">
+              <router-link to="/forgot-password" class="link-btn">Mot de passe oublié ?</router-link>
+            </p>
+            
             <p class="switch-form">
               {{ switchText }}
               <router-link :to="switchRoute" class="link-btn">{{ switchLinkText }}</router-link>
@@ -110,7 +114,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const router = useRouter()
-const { register, isLoading } = useAuth()
+const { register, login, isLoading } = useAuth()
 
 const showEmailForm = ref(false)
 const email = ref('')
@@ -149,6 +153,21 @@ const handleSubmit = async () => {
       }
     } catch (err: any) {
       error.value = err.message || 'Erreur lors de l\'inscription'
+    }
+  } else {
+    try {
+      const result = await login({
+        email: email.value,
+        password: password.value
+      })
+      
+      if (result.success) {
+        router.push('/')
+      } else if (result.user_id) {
+        router.push(`/verify-email?userId=${result.user_id}`)
+      }
+    } catch (err: any) {
+      error.value = err.message || 'Erreur lors de la connexion'
     }
   }
 }
@@ -431,6 +450,11 @@ const handleSubmit = async () => {
 .submit-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.forgot-password {
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 @media (max-width: 768px) {

@@ -73,6 +73,55 @@ export const useAuth = () => {
     }
   }
 
+  const login = async (credentials: { email: string; password: string }) => {
+    isLoading.value = true
+    try {
+      const response = await axios.post('/login', credentials)
+      
+      if (response.data.success) {
+        token.value = response.data.token
+        user.value = response.data.user
+        localStorage.setItem('auth_token', response.data.token)
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+      }
+      
+      return response.data
+    } catch (error: any) {
+      throw error.response?.data || error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const forgotPassword = async (email: string) => {
+    isLoading.value = true
+    try {
+      const response = await axios.post('/forgot-password', { email })
+      return response.data
+    } catch (error: any) {
+      throw error.response?.data || error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const resetPassword = async (userId: number, code: string, password: string, passwordConfirmation: string) => {
+    isLoading.value = true
+    try {
+      const response = await axios.post('/reset-password', {
+        user_id: userId,
+        code,
+        password,
+        password_confirmation: passwordConfirmation
+      })
+      return response.data
+    } catch (error: any) {
+      throw error.response?.data || error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   const logout = () => {
     user.value = null
     token.value = null
@@ -88,6 +137,9 @@ export const useAuth = () => {
     register,
     verifyEmail,
     resendCode,
+    login,
+    forgotPassword,
+    resetPassword,
     logout
   }
 }

@@ -9,6 +9,8 @@ import Legal from '../views/Legal.vue'
 import Login from '../views/auth/Login.vue'
 import Register from '../views/auth/Register.vue'
 import EmailVerification from '../views/auth/EmailVerification.vue'
+import ForgotPassword from '../views/auth/ForgotPassword.vue'
+import ResetPassword from '../views/auth/ResetPassword.vue'
 
 const routes = [
   {
@@ -74,6 +76,16 @@ const routes = [
     path: '/verify-email',
     name: 'EmailVerification',
     component: EmailVerification
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: ResetPassword
   }
 ]
 

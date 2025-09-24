@@ -9,20 +9,19 @@
           </router-link>
 
           <div class="form-header">
-            <h2>Vérification de votre email</h2>
-            <p class="subtitle">Nous avons envoyé un code de vérification à votre adresse email</p>
+            <h2>Mot de passe oublié</h2>
+            <p class="subtitle">Entrez votre adresse email pour recevoir un code de réinitialisation</p>
           </div>
 
-          <form class="email-form" @submit.prevent="handleVerification">
+          <form class="email-form" @submit.prevent="handleForgotPassword">
             <div class="form-group">
-              <label>Code de vérification</label>
+              <label>Email</label>
               <input
-                v-model="verificationCode"
-                type="text"
-                maxlength="6"
+                v-model="email"
+                type="email"
                 required
-                class="form-input code-input"
-                placeholder="000000"
+                class="form-input"
+                placeholder="votre@email.com"
               />
             </div>
 
@@ -36,24 +35,19 @@
 
             <button
               type="submit"
-              :disabled="isLoading || verificationCode.length !== 6"
+              :disabled="isLoading"
               class="submit-btn"
             >
-              <span v-if="isLoading">Vérification...</span>
-              <span v-else>Vérifier</span>
+              <span v-if="isLoading">Envoi en cours...</span>
+              <span v-else>Envoyer le code</span>
             </button>
           </form>
 
           <div class="form-footer">
-            <button
-              type="button"
-              @click="handleResendCode"
-              :disabled="isLoading || cooldown > 0"
-              class="link-btn"
-            >
-              <span v-if="cooldown > 0">Renvoyer le code dans {{ cooldown }}s</span>
-              <span v-else>Renvoyer le code</span>
-            </button>
+            <p class="switch-form">
+              Vous vous souvenez de votre mot de passe ?
+              <router-link to="/login" class="link-btn">Se connecter</router-link>
+            </p>
           </div>
         </div>
       </div>
@@ -69,71 +63,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
 
 const router = useRouter()
-const route = useRoute()
-const { verifyEmail, resendCode, isLoading } = useAuth()
+const { forgotPassword, isLoading } = useAuth()
 
-const verificationCode = ref('')
+const email = ref('')
 const error = ref('')
 const success = ref('')
-const cooldown = ref(0)
-const userId = ref<number | null>(null)
 
-onMounted(() => {
-  userId.value = Number(route.query.userId)
-  if (!userId.value) {
-    router.push('/register')
-  }
-})
-
-const handleVerification = async () => {
-  if (!userId.value) return
-  
+const handleForgotPassword = async () => {
   error.value = ''
   success.value = ''
   
   try {
-    const result = await verifyEmail(userId.value, verificationCode.value)
+    const result = await forgotPassword(email.value)
     if (result.success) {
       success.value = result.message
       setTimeout(() => {
-        router.push('/')
+        router.push(`/reset-password?userId=${result.user_id}`)
       }, 2000)
     }
   } catch (err: any) {
-    error.value = err.message || 'Erreur lors de la vérification'
+    error.value = err.message || 'Erreur lors de l\'envoi du code'
   }
-}
-
-const handleResendCode = async () => {
-  if (!userId.value) return
-  
-  error.value = ''
-  success.value = ''
-  
-  try {
-    const result = await resendCode(userId.value)
-    if (result.success) {
-      success.value = result.message
-      startCooldown()
-    }
-  } catch (err: any) {
-    error.value = err.message || 'Erreur lors du renvoi du code'
-  }
-}
-
-const startCooldown = () => {
-  cooldown.value = 60
-  const interval = setInterval(() => {
-    cooldown.value--
-    if (cooldown.value <= 0) {
-      clearInterval(interval)
-    }
-  }, 1000)
 }
 </script>
 
@@ -291,13 +246,6 @@ const startCooldown = () => {
   border-color: #6366f1;
 }
 
-.code-input {
-  text-align: center;
-  font-size: 1.5rem;
-  letter-spacing: 0.5rem;
-  font-weight: bold;
-}
-
 .submit-btn {
   width: 100%;
   padding: 0.75rem;
@@ -330,23 +278,17 @@ const startCooldown = () => {
   color: #9ca3af;
 }
 
+.switch-form {
+  margin-bottom: 1rem;
+}
+
 .link-btn {
-  background: none;
-  border: none;
   color: #6366f1;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 0.875rem;
-}
-
-.link-btn:hover:not(:disabled) {
-  color: #4f46e5;
-}
-
-.link-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
   text-decoration: none;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
 }
 
 .error-message {
@@ -375,10 +317,6 @@ const startCooldown = () => {
   
   .auth-form {
     order: 2 !important;
-  }
-  
-  .brand {
-    text-align: center !important;
   }
 }
 </style>
